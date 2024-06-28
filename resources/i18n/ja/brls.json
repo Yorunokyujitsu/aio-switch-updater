@@ -1,13 +1,13 @@
 {
     "hints": {
-        "ok": "決定",
-        "back": "戻る",
-        "exit": "閉じる"
+        "ok": "확인",
+        "back": "뒤로",
+        "exit": "종료"
     },
     "crash_frame": {
-        "button": "決定"
+        "button": "확인"
     },
     "thumbnail_sidebar": {
-        "save": "保存"
+        "save": "저장"
     }
 }

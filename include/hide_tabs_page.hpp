@@ -9,10 +9,11 @@ private:
     brls::Label* label;
     brls::ToggleListItem* about;
     brls::ToggleListItem* ams;
-    brls::ToggleListItem* cfws;
+    //brls::ToggleListItem* cfws;
+    brls::ToggleListItem* custom;
+    brls::ToggleListItem* extra;
     brls::ToggleListItem* fws;
     brls::ToggleListItem* cheats;
-    brls::ToggleListItem* custom;
     brls::ToggleListItem* outdatedTitles;
     brls::ToggleListItem* jccolor;
     brls::ToggleListItem* pccolor;
@@ -20,9 +21,9 @@ private:
     brls::ToggleListItem* rebootpayload;
     brls::ToggleListItem* netsettings;
     brls::ToggleListItem* browser;
-    brls::ToggleListItem* move;
+    // brls::ToggleListItem* move;
     brls::ToggleListItem* cleanup;
-    brls::ToggleListItem* language;
+    // brls::ToggleListItem* language;
 
 public:
     HideTabsPage();

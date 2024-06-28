@@ -48,11 +48,11 @@ std::string formatLabelText(double speed, double fileSizeCurrent, double fileSiz
     if (speedMB > 0) {
         std::string eta;
         if (hours > 0)
-            eta += fmt::format("{}h ", hours);
+            eta += fmt::format("{}시간 ", hours);
         if (minutes > 0)
-            eta += fmt::format("{}m ", minutes);
+            eta += fmt::format("{}분 ", minutes);
 
-        eta += fmt::format("{}s", seconds);
+    eta += fmt::format("{}초", seconds);
         labelText += "\n" + fmt::format("menus/worker/time_left"_i18n, eta);
     }
 

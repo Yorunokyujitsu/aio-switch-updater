@@ -29,18 +29,21 @@ HideTabsPage::HideTabsPage() : AppletFrame(true, true)
     ams = new brls::ToggleListItem("menus/main/update_ams"_i18n, util::getBoolValue(hideStatus, "atmosphere"));
     list->addView(ams);
 
-    cfws = new brls::ToggleListItem("menus/main/update_bootloaders"_i18n, util::getBoolValue(hideStatus, "cfw"));
-    list->addView(cfws);
-
+    //cfws = new brls::ToggleListItem("menus/main/update_bootloaders"_i18n, util::getBoolValue(hideStatus, "cfw"));
+    //list->addView(cfws);
+    
     fws = new brls::ToggleListItem("menus/main/download_firmware"_i18n, util::getBoolValue(hideStatus, "firmwares"));
     list->addView(fws);
+
+    custom = new brls::ToggleListItem("menus/main/custom_downloads"_i18n, util::getBoolValue(hideStatus, "custom"));
+    list->addView(custom);
+    
+    extra = new brls::ToggleListItem("menus/main/update_bootloaders"_i18n, util::getBoolValue(hideStatus, "extra"));
+    list->addView(extra);
 
     cheats = new brls::ToggleListItem("menus/main/download_cheats"_i18n, util::getBoolValue(hideStatus, "cheats"));
     list->addView(cheats);
 	
-    custom = new brls::ToggleListItem("menus/main/custom_downloads"_i18n, util::getBoolValue(hideStatus, "custom"));
-    list->addView(custom);
-
     outdatedTitles = new brls::ToggleListItem("menus/tools/outdated_titles"_i18n, util::getBoolValue(hideStatus, "outdatedtitles"));
     list->addView(outdatedTitles);
 
@@ -62,23 +65,24 @@ HideTabsPage::HideTabsPage() : AppletFrame(true, true)
     browser = new brls::ToggleListItem("menus/tools/browser"_i18n, util::getBoolValue(hideStatus, "browser"));
     list->addView(browser);
 
-    move = new brls::ToggleListItem("menus/tools/batch_copy"_i18n, util::getBoolValue(hideStatus, "move"));
-    list->addView(move);
+    // move = new brls::ToggleListItem("menus/tools/batch_copy"_i18n, util::getBoolValue(hideStatus, "move"));
+    // list->addView(move);
 
     cleanup = new brls::ToggleListItem("menus/tools/clean_up"_i18n, util::getBoolValue(hideStatus, "cleanup"));
     list->addView(cleanup);
 
-    language = new brls::ToggleListItem("menus/tools/language"_i18n, util::getBoolValue(hideStatus, "language"));
-    list->addView(language);
+    // language = new brls::ToggleListItem("menus/tools/language"_i18n, util::getBoolValue(hideStatus, "language"));
+    // list->addView(language);
 
     list->registerAction("menus/cheats/exclude_titles_save"_i18n, brls::Key::B, [this] {
         json updatedStatus = json::object();
         updatedStatus["about"] = about->getToggleState();
         updatedStatus["atmosphere"] = ams->getToggleState();											 
-        updatedStatus["cfw"] = cfws->getToggleState();
+        //updatedStatus["cfw"] = cfws->getToggleState();
         updatedStatus["firmwares"] = fws->getToggleState();
-        updatedStatus["cheats"] = cheats->getToggleState();
         updatedStatus["custom"] = custom->getToggleState();	
+        updatedStatus["extra"] = extra->getToggleState();
+        updatedStatus["cheats"] = cheats->getToggleState();
         updatedStatus["outdatedtitles"] = outdatedTitles->getToggleState();	
         updatedStatus["jccolor"] = jccolor->getToggleState();
         updatedStatus["pccolor"] = pccolor->getToggleState();
@@ -86,9 +90,9 @@ HideTabsPage::HideTabsPage() : AppletFrame(true, true)
         updatedStatus["rebootpayload"] = rebootpayload->getToggleState();
         updatedStatus["netsettings"] = netsettings->getToggleState();
         updatedStatus["browser"] = browser->getToggleState();
-        updatedStatus["move"] = move->getToggleState();
+        // updatedStatus["move"] = move->getToggleState();
         updatedStatus["cleanup"] = cleanup->getToggleState();
-        updatedStatus["language"] = language->getToggleState();
+        // updatedStatus["language"] = language->getToggleState();
 
         fs::writeJsonToFile(updatedStatus, HIDE_TABS_JSON);
         brls::Application::popView();

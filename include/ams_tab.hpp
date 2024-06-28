@@ -12,6 +12,7 @@ protected:
     brls::ListItem* listItem;
     bool erista;
     nlohmann::ordered_json nxlinks;
+    nlohmann::ordered_json custom_packs;
     nlohmann::ordered_json hekate;
     contentType type;
     void CreateStagedFrames(const std::string& text, const std::string& url, bool erista, bool ams = true, bool hekate = false, const std::string& text_hekate = "", const std::string& hekate_url = "");
@@ -37,13 +38,24 @@ public:
     AmsTab_Regular(const nlohmann::ordered_json& nxlinks, const bool erista = true);
 };
 
+class AmsTab_Extra : public AmsTab
+{
+private:
+    void CreateLists();
+    bool CreateDownloadItems(const nlohmann::ordered_json& cfw_links, bool hekate = true, bool ams = true);
+
+public:
+    AmsTab_Extra(const nlohmann::ordered_json& nxlinks, const bool erista = true);
+};
+
 class AmsTab_Custom : public AmsTab
 {
 private:
-    nlohmann::ordered_json custom_packs;
     void CreateLists();
-    void RegisterListItemAction(brls::ListItem* listItem) override;
-    void AddLinkCreator();
+    // void RegisterListItemAction(brls::ListItem* listItem) override;
+    // void AddLinkCreator();
+    std::set<std::string> GetLastDownloadedModules(const std::string& json_path);
+    // nlohmann::ordered_json custom_packs;
 
 public:
     AmsTab_Custom(const nlohmann::ordered_json& nxlinks, const bool erista = true);

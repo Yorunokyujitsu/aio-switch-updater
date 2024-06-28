@@ -3,13 +3,13 @@
 
 #include <switch.h>
 
-#define PATH        "/switch/aio-switch-updater/"
-#define FULL_PATH   "/switch/aio-switch-updater/aio-switch-updater.nro"
-#define CONFIG_PATH "/config/aio-switch-updater/switch/aio-switch-updater/aio-switch-updater.nro"
-#define PREFIX      "/switch/aio-switch-updater/aio-switch-updater-v"
-#define FORWARDER_PATH      "/config/aio-switch-updater/aiosu-forwarder.nro"
-#define CONFIG_SWITCH       "/config/aio-switch-updater/switch/"
-#define HIDDEN_FILE "/config/aio-switch-updater/.aio-switch-updater"
+#define PATH        "/switch/ASAP-Updater/"
+#define FULL_PATH   "/switch/ASAP-Updater/ASAP-Updater.nro"
+#define CONFIG_PATH "/config/ASAP-Updater/switch/ASAP-Updater/ASAP-Updater.nro"
+#define PREFIX      "/switch/ASAP-Updater/ASAP-Updater-v"
+#define FORWARDER_PATH      "/config/ASAP-Updater/aiosu-forwarder.nro"
+#define CONFIG_SWITCH       "/config/ASAP-Updater/switch/"
+#define HIDDEN_FILE "/config/ASAP-Updater/.ASAP-Updater"
 
 int removeDir(const char* path)
 {

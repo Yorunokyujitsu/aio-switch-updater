@@ -98,9 +98,9 @@ void AppPage::CreateDownloadAllButton()
         stagedFrame->addStage(
             new ConfirmPage(stagedFrame, text));
         stagedFrame->addStage(
-            new WorkerPage(stagedFrame, "menus/common/downloading"_i18n, [url]() { util::downloadArchive(url, contentType::cheats); }));
+            new WorkerPage(stagedFrame, "menus/common/downloading"_i18n, [url]() { util::downloadArchive(url, contentType::Cheats); }));
         stagedFrame->addStage(
-            new WorkerPage(stagedFrame, "menus/common/extracting"_i18n, []() { util::extractArchive(contentType::cheats); }));
+            new WorkerPage(stagedFrame, "menus/common/extracting"_i18n, []() { util::extractArchive(contentType::Cheats); }));
         stagedFrame->addStage(
             new ConfirmPage_Done(stagedFrame, "menus/common/all_done"_i18n));
         brls::Application::pushView(stagedFrame);
@@ -204,12 +204,13 @@ void AppPage_Gbatemp::AddListItem(const std::string& name, u64 tid)
 AppPage_Gfx::AppPage_Gfx() : AppPage()
 {
     this->PopulatePage();
+    this->setIcon("romfs:/gbatemp_icon.png");
 }
 
 void AppPage_Gfx::CreateLabel()
 {
     this->setTitle("menus/cheats/gfx_title"_i18n);
-    label = new brls::Label(brls::LabelStyle::DESCRIPTION, "menus/cheats/cheatslips_select"_i18n, true);
+    label = new brls::Label(brls::LabelStyle::DESCRIPTION, "menus/cheats/cheatslips_gfx_select"_i18n, true);
     list->addView(label);
 }
 
@@ -218,7 +219,6 @@ void AppPage_Gfx::AddListItem(const std::string& name, u64 tid)
     listItem->getClickEvent()->subscribe([tid, name](brls::View* view) { brls::Application::pushView(new DownloadCheatsPage_Gfx(tid, name)); });
     list->addView(listItem);
 }
-
 
 AppPage_Exclude::AppPage_Exclude() : AppPage()
 {

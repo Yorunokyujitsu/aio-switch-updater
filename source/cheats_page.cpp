@@ -58,14 +58,14 @@ CheatsPage::CheatsPage() : AppletFrame(true, true)
         item = new brls::ListItem("menus/cheats/dl_all"_i18n);
         item->getClickEvent()->subscribe([cheatsVer](brls::View* view) {
             std::string url = CurrentCfw::running_cfw == CFW::sxos ? CHEATS_URL_TITLES : CHEATS_URL_CONTENTS;
-            std::string text(fmt::format("menus/main/get_cheats"_i18n, cheatsVer) + "menus/common/from"_i18n + url);
+            std::string text(fmt::format("menus/main/get_cheats"_i18n, cheatsVer) + "menus/common/from"_i18n);
             brls::StagedAppletFrame* stagedFrame = new brls::StagedAppletFrame();
             stagedFrame->setTitle("menus/cheats/dl_all"_i18n);
             stagedFrame->addStage(
                 new ConfirmPage(stagedFrame, text));
             if (cheatsVer != "offline") {
                 stagedFrame->addStage(
-                    new WorkerPage(stagedFrame, "menus/common/downloading"_i18n, [url]() { util::downloadArchive(url, contentType::cheats); }));
+                    new WorkerPage(stagedFrame, "menus/common/downloading"_i18n, [url]() { util::downloadArchive(url, contentType::Cheats); }));
             }
             stagedFrame->addStage(
                 new WorkerPage(stagedFrame, "menus/common/extracting"_i18n, [cheatsVer]() { extract::extractAllCheats(CHEATS_FILENAME, CurrentCfw::running_cfw, cheatsVer); }));

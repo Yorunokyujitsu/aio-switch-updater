@@ -20,9 +20,9 @@ SOURCES		:=	source
 RESOURCES	:=	resources
 DATA		:=	data
 INCLUDES	:=	include /lib/borealis/library/include/borealis/extern/nlohmann
-APP_TITLE	:=	All-in-One Switch Updater
-APP_AUTHOR	:=	HamletDuFromage
-APP_VERSION :=	2.23.2
+APP_TITLE	:=	ASAP-Updater
+APP_AUTHOR	:=	HamletDuFromage, forked by Asa
+APP_VERSION :=	2.24.2
 TARGET		:=	$(notdir $(CURDIR))
 
 ROMFS				:=	resources
@@ -159,11 +159,12 @@ all: $(BUILD)
 
 $(ROMFS):
 	@[ -d $@ ] || mkdir -p $@
-	@cp -rf $(CURDIR)/$(ROMFS)/i18n/zh-CN/. $(CURDIR)/$(ROMFS)/i18n/zh-Hans/
-	@cp -rf $(CURDIR)/$(ROMFS)/i18n/zh-TW/. $(CURDIR)/$(ROMFS)/i18n/zh-Hant/
-	@$(MAKE) -C $(CURDIR)/TegraExplorer -f $(CURDIR)/TegraExplorer/Makefile
-	@cp $(CURDIR)/TegraExplorer/output/TegraExplorer.bin $(CURDIR)/$(ROMFS)/aio_rcm.bin
-# @$(MAKE) -C $(CURDIR)/aiosu-forwarder -f $(CURDIR)/aiosu-forwarder/Makefile
+	@echo Merging ROMFS...
+	@cp -ruf $(CURDIR)/$(BOREALIS_PATH)/resources/i18n/. $(CURDIR)/$(ROMFS)/i18n/
+	@rm -rf $(CURDIR)/$(ROMFS)/i18n/*/installer.json $(CURDIR)/$(ROMFS)/i18n/*/main.json $(CURDIR)/$(ROMFS)/i18n/*/popup.json $(CURDIR)/$(ROMFS)/i18n/*/custom_layout.json
+	@$(MAKE) -C $(CURDIR)/ATLAS -f $(CURDIR)/ATLAS/Makefile
+	@cp $(CURDIR)/ATLAS/output/ATLAS.bin $(CURDIR)/$(ROMFS)/aio_rcm.bin
+	@$(MAKE) -C $(CURDIR)/aiosu-forwarder -f $(CURDIR)/aiosu-forwarder/Makefile
 	@cp $(CURDIR)/aiosu-forwarder/aiosu-forwarder.nro $(CURDIR)/$(ROMFS)/aiosu-forwarder.nro
 
 $(BUILD): $(ROMFS)
@@ -175,7 +176,7 @@ clean:
 	@echo clean ...
 ifeq ($(strip $(APP_JSON)),)
 	@rm -fr $(BUILD) $(notdir $(CURDIR))*.nro $(notdir $(CURDIR))*.nacp $(notdir $(CURDIR))*.elf
-# @rm -fr $(CURDIR)/aiosu-forwarder/build $(CURDIR)/aiosu-forwarder/*.nro $(CURDIR)/aiosu-forwarder/*.nacp $(CURDIR)/aiosu-forwarder/*.elf
+	@rm -fr $(CURDIR)/aiosu-forwarder/build $(CURDIR)/aiosu-forwarder/*.nro $(CURDIR)/aiosu-forwarder/*.nacp $(CURDIR)/aiosu-forwarder/*.elf
 else
 	@rm -fr $(BUILD) $(TARGET).nsp $(TARGET).nso $(TARGET).npdm $(TARGET).elf
 endif

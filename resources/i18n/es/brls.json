@@ -1,10 +1,13 @@
 {
     "hints": {
-        "ok": "Aceptar",
-        "back": "Atrás",
-        "exit": "Salir"
+        "ok": "확인",
+        "back": "뒤로",
+        "exit": "종료"
     },
     "crash_frame": {
-        "button": "Aceptar"
+        "button": "확인"
+    },
+    "thumbnail_sidebar": {
+        "save": "저장"
     }
 }

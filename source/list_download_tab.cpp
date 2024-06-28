@@ -23,7 +23,7 @@ ListDownloadTab::ListDownloadTab(const contentType type, const nlohmann::ordered
 
     this->createList();
 
-    if (this->type == contentType::cheats) {
+    if (this->type == contentType::Cheats) {
         brls::Label* cheatsLabel = new brls::Label(
             brls::LabelStyle::DESCRIPTION,
             "menus/cheats/cheats_label"_i18n,
@@ -32,13 +32,6 @@ ListDownloadTab::ListDownloadTab(const contentType type, const nlohmann::ordered
         this->createGbatempItem();
         this->createGfxItem();
         this->createCheatSlipItem();
-    }
-
-    if (this->type == contentType::bootloaders) {
-        this->setDescription(contentType::hekate_ipl);
-        this->createList(contentType::hekate_ipl);
-        this->setDescription(contentType::payloads);
-        this->createList(contentType::payloads);
     }
 }
 
@@ -50,7 +43,7 @@ void ListDownloadTab::createList()
 void ListDownloadTab::createList(contentType type)
 {
     std::vector<std::pair<std::string, std::string>> links;
-    if (type == contentType::cheats && this->newCheatsVer != "") {
+    if (type == contentType::Cheats && this->newCheatsVer != "") {
         links.push_back(std::make_pair(fmt::format("menus/main/get_cheats"_i18n, this->newCheatsVer), CurrentCfw::running_cfw == CFW::sxos ? CHEATS_URL_TITLES : CHEATS_URL_CONTENTS));
         links.push_back(std::make_pair("menus/main/get_cheats_gfx"_i18n, CurrentCfw::running_cfw == CFW::sxos ? GFX_CHEATS_URL_TITLES : GFX_CHEATS_URL_CONTENTS));
     }
@@ -61,14 +54,14 @@ void ListDownloadTab::createList(contentType type)
         for (const auto& link : links) {
             const std::string title = link.first;
             const std::string url = link.second;
-            const std::string text("menus/common/download"_i18n + link.first + "menus/common/from"_i18n + url);
+            const std::string text("menus/common/download"_i18n + link.first + "menus/common/from"_i18n);
             listItem = new brls::ListItem(link.first);
             listItem->setHeight(LISTITEM_HEIGHT);
             listItem->getClickEvent()->subscribe([this, type, text, url, title](brls::View* view) {
                 brls::StagedAppletFrame* stagedFrame = new brls::StagedAppletFrame();
                 stagedFrame->setTitle(fmt::format("menus/main/getting"_i18n, contentTypeNames[(int)type].data()));
                 stagedFrame->addStage(new ConfirmPage(stagedFrame, text));
-                if (type == contentType::fw) {
+                if (type == contentType::HorizonOS) {
                     std::string contentsPath = util::getContentsPath();
                     for (const auto& tid : {"0100000000001000", "0100000000001007", "0100000000001013"}) {
                         if (std::filesystem::exists(contentsPath + tid) && !std::filesystem::is_empty(contentsPath + tid)) {
@@ -76,25 +69,20 @@ void ListDownloadTab::createList(contentType type)
                         }
                     }
                 }
-                if (type != contentType::payloads && type != contentType::hekate_ipl) {
-                    if (type != contentType::cheats || (this->newCheatsVer != this->currentCheatsVer && this->newCheatsVer != "offline")) {
+                if (type != contentType::BootLauncher) {
+                    if (type != contentType::Cheats || (this->newCheatsVer != this->currentCheatsVer && this->newCheatsVer != "offline")) {
                         stagedFrame->addStage(new WorkerPage(stagedFrame, "menus/common/downloading"_i18n, [this, type, url]() { util::downloadArchive(url, type); }));
                     }
                     stagedFrame->addStage(new WorkerPage(stagedFrame, "menus/common/extracting"_i18n, [this, type]() { util::extractArchive(type, this->newCheatsVer); }));
                 }
-                else if (type == contentType::payloads) {
-                    fs::createTree(BOOTLOADER_PL_PATH);
-                    std::string path = std::string(BOOTLOADER_PL_PATH) + title;
-                    stagedFrame->addStage(new WorkerPage(stagedFrame, "menus/common/downloading"_i18n, [url, path]() { download::downloadFile(url, path, OFF); }));
-                }
-                else if (type == contentType::hekate_ipl) {
+                else if (type == contentType::BootLauncher) {
                     fs::createTree(BOOTLOADER_PATH);
                     std::string path = std::string(BOOTLOADER_PATH) + title;
                     stagedFrame->addStage(new WorkerPage(stagedFrame, "menus/common/downloading"_i18n, [url, path]() { download::downloadFile(url, path, OFF); }));
                 }
 
                 std::string doneMsg = "menus/common/all_done"_i18n;
-                if (type == contentType::fw && std::filesystem::exists(DAYBREAK_PATH)) {
+                if (type == contentType::HorizonOS && std::filesystem::exists(DAYBREAK_PATH)) {
                         stagedFrame->addStage(new DialoguePage_fw(stagedFrame, doneMsg));
                 }
                 else {
@@ -130,25 +118,17 @@ void ListDownloadTab::setDescription(contentType type)
     brls::Label* description = new brls::Label(brls::LabelStyle::DESCRIPTION, "", true);
 
     switch (type) {
-        case contentType::fw: {
+        case contentType::HorizonOS: {
             SetSysFirmwareVersion ver;
+            this->addView(new brls::Header("menus/main/firmware_title"_i18n));
             description->setText(fmt::format("{}{}", "menus/main/firmware_text"_i18n, R_SUCCEEDED(setsysGetFirmwareVersion(&ver)) ? ver.display_version : "menus/main/not_found"_i18n));
             break;
         }
-        case contentType::bootloaders:
-            description->setText(
-                "menus/main/bootloaders_text"_i18n);
-            break;
-        case contentType::cheats:
+        case contentType::Cheats:
             this->newCheatsVer = util::getCheatsVersion();
             this->currentCheatsVer = util::readFile(CHEATS_VERSION);
+            this->addView(new brls::Header("menus/main/cheats_title"_i18n));
             description->setText("menus/main/cheats_text"_i18n + this->currentCheatsVer);
-            break;
-        case contentType::payloads:
-            description->setText(fmt::format("menus/main/payloads_label"_i18n, BOOTLOADER_PL_PATH));
-            break;
-        case contentType::hekate_ipl:
-            description->setText("menus/main/hekate_ipl_label"_i18n);
             break;
         default:
             break;

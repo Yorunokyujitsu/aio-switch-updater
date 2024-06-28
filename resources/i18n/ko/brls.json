@@ -1,7 +1,7 @@
 {
     "hints": {
         "ok": "확인",
-        "back": "뒤로 가기",
+        "back": "뒤로",
         "exit": "종료"
     },
     "crash_frame": {

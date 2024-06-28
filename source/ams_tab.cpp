@@ -30,21 +30,21 @@ bool AmsTab::CreateDownloadItems(const nlohmann::ordered_json& cfw_links, bool h
     links = download::getLinksFromJson(cfw_links);
     if (links.size() && !this->hekate.empty()) {  // non-empty this->hekate indicates internet connection
         auto hekate_link = download::getLinksFromJson(this->hekate);
-        std::string hekate_url = hekate_link[0].second;
-        std::string text_hekate = "menus/common/download"_i18n + hekate_link[0].first;
+        // std::string hekate_url = hekate_link[0].second;
+        // std::string text_hekate = "menus/common/download"_i18n + hekate_link[0].first;
 
         for (const auto& link : links) {
             bool pack = link.first.contains("[PACK]");
             std::string url = link.second;
-            std::string text("menus/common/download"_i18n + link.first + "menus/common/from"_i18n + url);
+            std::string text("menus/common/download"_i18n + link.first + "menus/common/from"_i18n);
             listItem = new brls::ListItem(link.first);
             listItem->setHeight(LISTITEM_HEIGHT);
-            listItem->getClickEvent()->subscribe([this, text, text_hekate, url, hekate_url, hekate, pack, ams](brls::View* view) {
+            listItem->getClickEvent()->subscribe([this, text, url, hekate, pack, ams](brls::View* view) {
                 if (!erista && !std::filesystem::exists(MARIKO_PAYLOAD_PATH)) {
                     brls::Application::crash("menus/errors/mariko_payload_missing"_i18n);
                 }
                 else {
-                    CreateStagedFrames(text, url, erista, ams, hekate && !pack, text_hekate, hekate_url);
+                    CreateStagedFrames(text, url, erista, ams);
                 }
             });
             this->RegisterListItemAction(listItem);
@@ -68,10 +68,6 @@ void AmsTab::CreateStagedFrames(const std::string& text, const std::string& url,
     if (hekate) {
         stagedFrame->addStage(
             new DialoguePage_ams(stagedFrame, text_hekate, erista));
-        stagedFrame->addStage(
-            new WorkerPage(stagedFrame, "menus/common/downloading"_i18n, [hekate_url]() { util::downloadArchive(hekate_url, contentType::bootloaders); }));
-        stagedFrame->addStage(
-            new WorkerPage(stagedFrame, "menus/common/extracting"_i18n, []() { util::extractArchive(contentType::bootloaders); }));
     }
     if (ams)
         stagedFrame->addStage(new ConfirmPage_AmsUpdate(stagedFrame, "menus/ams_update/reboot_rcm"_i18n, erista));
@@ -87,7 +83,7 @@ AmsTab_Regular::AmsTab_Regular(const nlohmann::ordered_json& nxlinks, const bool
 
 bool AmsTab_Regular::CreateDownloadItems(const nlohmann::ordered_json& cfw_links, bool hekate, bool ams)
 {
-    if (!AmsTab::CreateDownloadItems(cfw_links, hekate, ams)) {
+    if (!AmsTab::CreateDownloadItems(cfw_links, ams)) {
         brls::Label* description = new brls::Label(
             brls::LabelStyle::SMALL,
             "menus/main/links_not_found"_i18n,
@@ -103,23 +99,13 @@ void AmsTab_Regular::CreateLists()
 {
     this->type = contentType::ams_cfw;
     auto cfws = util::getValueFromKey(this->nxlinks, "cfws");
-
-    this->addView(new brls::Label(brls::LabelStyle::DESCRIPTION, "menus/main/ams_text"_i18n + (CurrentCfw::running_cfw == CFW::ams ? "\n" + "menus/ams_update/current_ams"_i18n + CurrentCfw::getAmsInfo() : "") + (erista ? "\n" + "menus/ams_update/erista_rev"_i18n : "\n" + "menus/ams_update/mariko_rev"_i18n), true));
-    CreateDownloadItems(util::getValueFromKey(cfws, "Atmosphere"));
-
-    this->addView(new brls::Label(
-        brls::LabelStyle::DESCRIPTION,
-        "menus/ams_update/deepsea_label"_i18n,
-        true));
-    listItem = new brls::ListItem("menus/ams_update/get_custom_deepsea"_i18n);
-    listItem->setHeight(LISTITEM_HEIGHT);
-    listItem->getClickEvent()->subscribe([this](brls::View* view) {
-        nlohmann::ordered_json modules;
-        download::getRequest(DEEPSEA_META_JSON, modules);
-        this->ShowCustomDeepseaBuilder(modules);
-    });
-    this->addView(listItem);
-    CreateDownloadItems(util::getValueFromKey(cfws, "DeepSea"), false);
+    
+    this->addView(new brls::Header("menus/about/asap_title"_i18n));
+    this->addView(new brls::Label(brls::LabelStyle::DESCRIPTION, (CurrentCfw::running_cfw == CFW::ams ? "menus/ams_update/current_ams"_i18n + CurrentCfw::getAmsInfo() : "") + (erista ? "\n" + "menus/ams_update/erista_rev"_i18n : "\n" + "menus/ams_update/mariko_rev"_i18n), true));
+    CreateDownloadItems(util::getValueFromKey(cfws, "ASAP"));
+    
+    this->addView(new brls::Header("menus/about/aio_title"_i18n));
+    CreateDownloadItems(util::getValueFromKey(cfws, "AIO"));
 }
 
 std::string AmsTab_Regular::GetRepoName(const std::string& repo)
@@ -139,151 +125,73 @@ std::set<std::string> AmsTab_Regular::GetLastDownloadedModules(const std::string
     return res;
 }
 
-nlohmann::ordered_json AmsTab_Regular::SortDeepseaModules(const nlohmann::ordered_json& modules)
+AmsTab_Extra::AmsTab_Extra(const nlohmann::ordered_json& nxlinks, const bool erista) : AmsTab(nxlinks, erista)
 {
-    nlohmann::ordered_json sorted_modules = nlohmann::ordered_json::object();
-    if (modules.find("modules") != modules.end()) {
-        for (const auto& module : modules.at("modules").items()) {
-            sorted_modules[std::string(module.value().at("category"))][module.key()] = module.value();
-        }
-    }
-    return sorted_modules;
+    this->CreateLists();
 }
 
-void AmsTab_Regular::ShowCustomDeepseaBuilder(nlohmann::ordered_json& modules)
+bool AmsTab_Extra::CreateDownloadItems(const nlohmann::ordered_json& cfw_links, bool hekate, bool ams)
 {
-    modules = SortDeepseaModules(modules);
-    std::map<std::string, std::string> name_map;
-
-    brls::TabFrame* appView = new brls::TabFrame();
-    appView->setIcon("romfs:/deepsea_icon.png");
-
-    std::vector<brls::List*> lists;
-    std::set<std::string> old_modules = GetLastDownloadedModules(DEEPSEA_PACKAGE_PATH);
-
-    brls::ToggleListItem* deepseaListItem;
-    for (const auto& category : modules.items()) {
-        brls::List* list = new brls::List();
-
-        for (const auto& module : category.value().items()) {
-            auto module_value = module.value();
-            std::string requirements = "";
-            if (!module_value.at("requires").empty()) {
-                requirements = "menus/ams_update/depends_on"_i18n;
-                for (const auto& r : module.value().at("requires")) {
-                    requirements += " " + r.get<std::string>() + ",";
-                }
-                requirements.pop_back();
-            }
-            if (module_value.at("required")) {
-                deepseaListItem = new UnTogglableListItem(module_value.at("displayName"), 1, requirements, "Required", "o");
-            }
-            else {
-                deepseaListItem = new ::brls::ToggleListItem(module_value.at("displayName"),
-                                                             old_modules.find(module.key()) != old_modules.end() ? 1 : 0,
-                                                             requirements,
-                                                             "menus/common/selected"_i18n,
-                                                             "menus/common/off"_i18n);
-            }
-            name_map.insert(std::pair(module_value.at("displayName"), module.key()));
-            deepseaListItem->registerAction("menus/ams_update/show_module_description"_i18n, brls::Key::Y, [module_value] {
-                util::showDialogBoxInfo(fmt::format("{}:\n{}", module_value.at("repo"), module_value.at("description")));
-                return true;
-            });
-            list->addView(deepseaListItem);
-        }
-        lists.push_back(list);
-        appView->addTab(category.key(), list);
-    }
-
-    appView->registerAction("menus/ams_update/download_deepsea_package"_i18n, brls::Key::X, [this, lists, name_map] {
-        std::set<std::string> desired_modules;
-        for (const auto& list : lists) {
-            for (size_t i = 0; i < list->getViewsCount(); i++) {
-                if (brls::ToggleListItem* item = dynamic_cast<brls::ToggleListItem*>(list->getChild(i))) {
-                    if (item->getToggleState()) {
-                        desired_modules.insert(name_map.at(item->getLabel()));
-                    }
-                }
-            }
-        }
-
-        std::string request_url = DEEPSEA_BUILD_URL;
-        for (const auto& e : desired_modules)
-            request_url += e + ";";
-
-        this->CreateStagedFrames("menus/common/download"_i18n + "Custom DeepSea package" + "menus/common/from"_i18n + request_url,
-                                 request_url,
-                                 this->erista);
+    if (!AmsTab::CreateDownloadItems(cfw_links, ams)) {
+        brls::Label* description = new brls::Label(
+            brls::LabelStyle::SMALL,
+            "menus/main/links_not_found"_i18n,
+            true);
+        description->setHorizontalAlign(NVG_ALIGN_CENTER);
+        this->addView(description);
         return true;
-    });
-    appView->registerAction("", brls::Key::PLUS, [this] { return true; });
+    }
+    return false;
+}
 
-    brls::PopupFrame::open("menus/ams_update/deepsea_builder"_i18n, appView, modules.empty() ? "menus/ams_update/cant_fetch_deepsea"_i18n : "menus/ams_update/build_your_deepsea"_i18n, "");
+void AmsTab_Extra::CreateLists()
+{
+    this->type = contentType::extra;
+    auto extra = util::getValueFromKey(this->nxlinks, "extra");
+
+    this->addView(new brls::Header("menus/main/android_title"_i18n));
+    CreateDownloadItems(util::getValueFromKey(extra, "android"));
+
+    this->addView(new brls::Header("menus/main/l4t_title"_i18n));
+    CreateDownloadItems(util::getValueFromKey(extra, "ubuntu"));
+
+    this->addView(new brls::Header("menus/main/lakka_title"_i18n));
+    CreateDownloadItems(util::getValueFromKey(extra, "lakka"));
 }
 
 AmsTab_Custom::AmsTab_Custom(const nlohmann::ordered_json& nxlinks, const bool erista) : AmsTab(nxlinks, erista)
 {
-    this->custom_packs = fs::parseJsonFile(CUSTOM_PACKS_PATH);
     this->CreateLists();
 }
 
 void AmsTab_Custom::CreateLists()
-{
-    this->addView(new brls::Label(
-        brls::LabelStyle::DESCRIPTION,
-        fmt::format("menus/ams_update/custom_packs_label"_i18n, CUSTOM_PACKS_PATH),
-        true));
-
+{   
     this->type = contentType::ams_cfw;
-    this->addView(new brls::Label(
-        brls::LabelStyle::DESCRIPTION,
-        "menus/ams_update/custom_packs_ams"_i18n,
-        true));
-    CreateDownloadItems(util::getValueFromKey(this->custom_packs, "ams"), true);
-    this->AddLinkCreator();
-
+    this->addView(new brls::Header("menus/main/tesla_title"_i18n));
+    // this->addView(new brls::Label(
+    //     brls::LabelStyle::DESCRIPTION,
+    //     "menus/ams_update/custom_packs_ams"_i18n,
+    //     true));
+    CreateDownloadItems(util::getValueFromKey(this->nxlinks, "etc"), true);
+    
     this->type = contentType::custom;
-    this->addView(new brls::Label(
-        brls::LabelStyle::DESCRIPTION,
-        "menus/ams_update/custom_packs_misc"_i18n,
-        true));
-    CreateDownloadItems(util::getValueFromKey(this->custom_packs, "misc"), false, false);
-    this->AddLinkCreator();
-}
+    auto custom = util::getValueFromKey(this->nxlinks, "custom");
+           
+    /*this->addView(new brls::Header("menus/main/tesla_title"_i18n));
+    CreateDownloadItems(util::getValueFromKey(custom, "tesla"), false, false);*/
 
-void AmsTab_Custom::AddLinkCreator()
-{
-    std::string category = this->type == contentType::ams_cfw ? "ams" : "misc";
-    listItem = new brls::ListItem("menus/ams_update/add_custom_link"_i18n);
-    listItem->setHeight(LISTITEM_HEIGHT);
-    listItem->getClickEvent()->subscribe([this, category](brls::View* view) {
-        std::string title, link;
-        brls::Swkbd::openForText([&title](std::string text) { title = text; }, "Enter title", "", 256, "", 0, "Submit", "Title");
-        brls::Swkbd::openForText([&link](std::string text) { link = text; }, "Enter direct link", "", 256, "", 0, "Submit", "https://site/download.zip");
-        auto links = util::getValueFromKey(this->custom_packs, category);
-        links[title] = link;
-        this->custom_packs[category] = links;
-        fs::writeJsonToFile(this->custom_packs, CUSTOM_PACKS_PATH);
-        util::restartApp();
-    });
-    this->addView(listItem);
-}
+    /*this->addView(new brls::Header("menus/main/package_title"_i18n));
+    CreateDownloadItems(util::getValueFromKey(custom, "package"), false, false);*/
 
-void AmsTab_Custom::RegisterListItemAction(brls::ListItem* listItem)
-{
-    std::string label = listItem->getLabel();
-    std::string category = this->type == contentType::ams_cfw ? "ams" : "misc";
-    listItem->registerAction("menus/ams_update/delete_custom_link"_i18n, brls::Key::X, [this, label, category] {
-        auto& links = this->custom_packs.at(category);
-        links.erase(label);
-        fs::writeJsonToFile(this->custom_packs, CUSTOM_PACKS_PATH);
-        util::restartApp();
-        return true;
-    });
-}
+    /*this->addView(new brls::Header("menus/main/sysclk_title"_i18n));
+    CreateDownloadItems(util::getValueFromKey(custom, "sysclk"), false, false);*/
 
-bool UnTogglableListItem::onClick()
-{
-    return true;
+    this->addView(new brls::Header("menus/main/sys_title"_i18n));
+    CreateDownloadItems(util::getValueFromKey(custom, "sys"), false, false);
+    
+    this->addView(new brls::Header("menus/main/home_title"_i18n));
+    CreateDownloadItems(util::getValueFromKey(custom, "home"), false, false);
+
+    this->addView(new brls::Header("menus/main/modchip_title"_i18n));
+    CreateDownloadItems(util::getValueFromKey(custom, "modchip"), false, false);
 }

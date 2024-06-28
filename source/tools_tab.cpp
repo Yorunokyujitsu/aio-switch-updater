@@ -28,7 +28,7 @@ ToolsTab::ToolsTab(const std::string& tag, const nlohmann::ordered_json& payload
 {
     if (!tag.empty() && tag != AppVersion) {
         brls::ListItem* updateApp = new brls::ListItem(fmt::format("menus/tools/update_app"_i18n, tag));
-        std::string text("menus/tools/dl_app"_i18n + std::string(APP_URL));
+        std::string text("menus/tools/dl_app"_i18n);
         updateApp->getClickEvent()->subscribe([text, tag](brls::View* view) {
             brls::StagedAppletFrame* stagedFrame = new brls::StagedAppletFrame();
             stagedFrame->setTitle("menus/common/updating"_i18n);
@@ -46,6 +46,15 @@ ToolsTab::ToolsTab(const std::string& tag, const nlohmann::ordered_json& payload
         this->addView(updateApp);
     }
 
+    brls::ListItem* browser = new brls::ListItem("menus/tools/browser"_i18n);
+    browser->getClickEvent()->subscribe([](brls::View* view) {
+        std::string url;
+        if (brls::Swkbd::openForText([&url](std::string text) { url = text; }, "cheatslips.com e-mail", "", 256, "https://asadayo.tistory.com/notice/421", 0, "Submit", "https://website.tld")) {
+            util::openWebBrowser(url);
+        }
+    });
+    browser->setHeight(LISTITEM_HEIGHT);
+    
     brls::ListItem* cheats = new brls::ListItem("menus/tools/cheats"_i18n);
     cheats->getClickEvent()->subscribe([](brls::View* view) {
         brls::PopupFrame::open("menus/cheats/menu"_i18n, new CheatsPage(), "", "");
@@ -82,28 +91,19 @@ ToolsTab::ToolsTab(const std::string& tag, const nlohmann::ordered_json& payload
     });
     netSettings->setHeight(LISTITEM_HEIGHT);
 
-    brls::ListItem* browser = new brls::ListItem("menus/tools/browser"_i18n);
-    browser->getClickEvent()->subscribe([](brls::View* view) {
-        std::string url;
-        if (brls::Swkbd::openForText([&url](std::string text) { url = text; }, "cheatslips.com e-mail", "", 256, "https://duckduckgo.com", 0, "Submit", "https://website.tld")) {
-            util::openWebBrowser(url);
-        }
-    });
-    browser->setHeight(LISTITEM_HEIGHT);
-
-    brls::ListItem* move = new brls::ListItem("menus/tools/batch_copy"_i18n);
-    move->getClickEvent()->subscribe([](brls::View* view) {
-        chdir("/");
-        std::string error = "";
-        if (std::filesystem::exists(COPY_FILES_TXT)) {
-            error = fs::copyFiles(COPY_FILES_TXT);
-        }
-        else {
-            error = "menus/tools/batch_copy_config_not_found"_i18n;
-        }
-        util::showDialogBoxInfo(error);
-    });
-    move->setHeight(LISTITEM_HEIGHT);
+    //brls::ListItem* move = new brls::ListItem("menus/tools/batch_copy"_i18n);
+    //move->getClickEvent()->subscribe([](brls::View* view) {
+    //    chdir("/");
+    //    std::string error = "";
+    //    if (std::filesystem::exists(COPY_FILES_TXT)) {
+    //        error = fs::copyFiles(COPY_FILES_TXT);
+    //    }
+    //    else {
+    //        error = "menus/tools/batch_copy_config_not_found"_i18n;
+    //    }
+    //    util::showDialogBoxInfo(error);
+    //});
+    //move->setHeight(LISTITEM_HEIGHT);
 
     brls::ListItem* cleanUp = new brls::ListItem("menus/tools/clean_up"_i18n);
     cleanUp->getClickEvent()->subscribe([](brls::View* view) {
@@ -121,57 +121,38 @@ ToolsTab::ToolsTab(const std::string& tag, const nlohmann::ordered_json& payload
     });
     cleanUp->setHeight(LISTITEM_HEIGHT);
 
-    brls::ListItem* language = new brls::ListItem("menus/tools/language"_i18n);
-    language->getClickEvent()->subscribe([](brls::View* view) {
-        std::vector<std::pair<std::string, std::string>> languages{
-            std::make_pair("American English ({})", "en-US"),
-            std::make_pair("日本語 ({})", "ja"),
-            std::make_pair("Français ({})", "fr"),
-            std::make_pair("Deutsch ({})", "de"),
-            std::make_pair("Italiano ({})", "it"),
-            std::make_pair("Español ({})", "es"),
-            std::make_pair("Português ({})", "pt-BR"),
-            std::make_pair("Nederlands ({})", "nl"),
-            std::make_pair("Русский ({})", "ru"),
-            std::make_pair("Română ({})", "ro"),
-            std::make_pair("한국어 ({})", "ko"),
-            std::make_pair("Polski ({})", "pl"),
-            std::make_pair("简体中文 ({})", "zh-CN"),
-            std::make_pair("繁體中文 ({})", "zh-TW"),
-            std::make_pair("English (Great Britain) ({})", "en-GB"),
-            std::make_pair("Français (Canada) ({})", "fr-CA"),
-            std::make_pair("Español (Latinoamérica) ({})", "es-419"),
-            std::make_pair("Português brasileiro ({})", "pt-BR"),
-            std::make_pair("Traditional Chinese ({})", "zh-Hant"),
-            std::make_pair("Simplified Chinese ({})", "zh-Hans")};
-        brls::AppletFrame* appView = new brls::AppletFrame(true, true);
-        brls::List* list = new brls::List();
-        brls::ListItem* listItem;
-        listItem = new brls::ListItem(fmt::format("System Default ({})", i18n::getCurrentLocale()));
-        listItem->registerAction("menus/tools/language"_i18n, brls::Key::A, [] {
-            std::filesystem::remove(LANGUAGE_JSON);
-            brls::Application::quit();
-            return true;
-        });
-        list->addView(listItem);
-        for (auto& language : languages) {
-            if (std::filesystem::exists(fmt::format(LOCALISATION_FILE, language.second))) {
-                listItem = new brls::ListItem(fmt::format(language.first, language.second));
-                listItem->registerAction("menus/tools/language"_i18n, brls::Key::A, [language] {
-                    json updatedLanguage = json::object();
-                    updatedLanguage["language"] = language.second;
-                    std::ofstream out(LANGUAGE_JSON);
-                    out << updatedLanguage.dump();
-                    brls::Application::quit();
-                    return true;
-                });
-                list->addView(listItem);
-            }
-        }
-        appView->setContentView(list);
-        brls::PopupFrame::open("menus/tools/language"_i18n, appView, "", "");
-    });
-    language->setHeight(LISTITEM_HEIGHT);
+    //brls::ListItem* language = new brls::ListItem("menus/tools/language"_i18n);
+    //language->getClickEvent()->subscribe([](brls::View* view) {
+    //    std::vector<std::pair<std::string, std::string>> languages{
+    //        std::make_pair("한국어-ASAP전용 ({})", "ko")};
+    //    brls::AppletFrame* appView = new brls::AppletFrame(true, true);
+    //    brls::List* list = new brls::List();
+    //    brls::ListItem* listItem;
+    //    listItem = new brls::ListItem(fmt::format("System Default ({})", i18n::getCurrentLocale()));
+    //    listItem->registerAction("menus/tools/language"_i18n, brls::Key::A, [] {
+    //        std::filesystem::remove(LANGUAGE_JSON);
+    //        brls::Application::quit();
+    //        return true;
+    //    });
+    //    list->addView(listItem);
+    //    for (auto& language : languages) {
+    //        if (std::filesystem::exists(fmt::format(LOCALISATION_FILE, language.second))) {
+    //            listItem = new brls::ListItem(fmt::format(language.first, language.second));
+    //            listItem->registerAction("menus/tools/language"_i18n, brls::Key::A, [language] {
+    //                json updatedLanguage = json::object();
+    //                updatedLanguage["language"] = language.second;
+    //                std::ofstream out(LANGUAGE_JSON);
+    //                out << updatedLanguage.dump();
+    //                brls::Application::quit();
+    //                return true;
+    //            });
+    //            list->addView(listItem);
+    //        }
+    //    }
+    //    appView->setContentView(list);
+    //    brls::PopupFrame::open("menus/tools/language"_i18n, appView, "", "");
+    //});
+    //language->setHeight(LISTITEM_HEIGHT);
 
     brls::ListItem* hideTabs = new brls::ListItem("menus/tools/hide_tabs"_i18n);
     hideTabs->getClickEvent()->subscribe([](brls::View* view) {
@@ -185,16 +166,16 @@ ToolsTab::ToolsTab(const std::string& tag, const nlohmann::ordered_json& payload
     });
     changelog->setHeight(LISTITEM_HEIGHT);
 
+    this->addView(changelog);
+    if (!util::getBoolValue(hideStatus, "browser")) this->addView(browser);
     if (!util::getBoolValue(hideStatus, "cheats")) this->addView(cheats);
     if (!util::getBoolValue(hideStatus, "outdatedtitles")) this->addView(outdatedTitles);
     if (!util::getBoolValue(hideStatus, "jccolor")) this->addView(JCcolor);
     if (!util::getBoolValue(hideStatus, "pccolor")) this->addView(PCcolor);
     if (erista && !util::getBoolValue(hideStatus, "rebootpayload")) this->addView(rebootPayload);
     if (!util::getBoolValue(hideStatus, "netsettings")) this->addView(netSettings);
-    if (!util::getBoolValue(hideStatus, "browser")) this->addView(browser);
-    if (!util::getBoolValue(hideStatus, "move")) this->addView(move);
+    // if (!util::getBoolValue(hideStatus, "move")) this->addView(move);
     if (!util::getBoolValue(hideStatus, "cleanup")) this->addView(cleanUp);
-    if (!util::getBoolValue(hideStatus, "language")) this->addView(language);
+    // if (!util::getBoolValue(hideStatus, "language")) this->addView(language);
     this->addView(hideTabs);
-    this->addView(changelog);
 }

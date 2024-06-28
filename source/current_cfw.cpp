@@ -1,5 +1,9 @@
 #include "current_cfw.hpp"
 
+#include <algorithm>
+#include <fstream>
+#include <sstream>
+#include <string>
 #include <switch.h>
 
 namespace CurrentCfw {
@@ -56,21 +60,62 @@ namespace CurrentCfw {
         }
         return CFW::ams;
     }
+    
+    std::string readVersionTagFromFile() {
+        std::string filePath = "sdmc:/atmosphere/contents/010B6ECF3B30D000/03/0100B0E8EB470000";
+        std::ifstream file(filePath);
+        std::string line;
+        if (file.is_open() && std::getline(file, line)) {
+            file.close();
+            return line;
+        }
+        return "NULL";
+    }
 
-    std::string getAmsInfo()
-    {
+    std::string getAmsInfo() {
         u64 version;
         std::string res;
         if (R_SUCCEEDED(splGetConfig((SplConfigItem)65000, &version))) {
-            res += std::to_string((version >> 56) & ((1 << 8) - 1)) + "." +
-                   std::to_string((version >> 48) & ((1 << 8) - 1)) + "." +
-                   std::to_string((version >> 40) & ((1 << 8) - 1));
-            if (R_SUCCEEDED(splGetConfig((SplConfigItem)65007, &version)))
-                res += version ? "|E" : "|S";
-            return res;
-        }
-        else
-            return "Couldn't retrieve AMS version";
-    }
+            std::string amsVersion = std::to_string((version >> 56) & ((1 << 8) - 1)) + "." +
+                                     std::to_string((version >> 48) & ((1 << 8) - 1)) + "." +
+                                     std::to_string((version >> 40) & ((1 << 8) - 1));
 
+            std::string nandType;
+            if (R_SUCCEEDED(splGetConfig((SplConfigItem)65007, &version))) {
+                nandType = version ? " | EmuNAND" : " | SysNAND";
+            }
+
+            std::string versionTag = readVersionTagFromFile();
+            if (versionTag != "NULL") {
+                std::istringstream iss(versionTag);
+                std::string firstPart, secondPart, thirdPart;
+                if (std::getline(iss, firstPart, '|') && std::getline(iss, secondPart, '|') && std::getline(iss, thirdPart)) {
+                    firstPart.erase(remove_if(firstPart.begin(), firstPart.end(), isspace), firstPart.end());
+                    secondPart.erase(remove_if(secondPart.begin(), secondPart.end(), isspace), secondPart.end());
+                    thirdPart.erase(remove_if(thirdPart.begin(), thirdPart.end(), isspace), thirdPart.end());
+
+                    if (thirdPart == "UPDATE") {
+                        res = "Hekate " + firstPart + " | Asanosphère " + amsVersion + " | ASAP-" + secondPart + nandType;
+                    } else if (thirdPart == "APP") {
+                        res = "Atmosphère " + amsVersion + nandType;
+                    } else if (thirdPart == "HATS") {
+                        res = "Hekate " + firstPart + " | Atmosphère " + amsVersion + " | HATS-" + secondPart + nandType;
+                    } else if (thirdPart == "KEFIR") {
+                        res = "Hekate " + firstPart + " | Atmosphère " + amsVersion + " | Kefir-" + secondPart + nandType;
+                    } else if (thirdPart == "DEEPSEA") {
+                        res = "Hekate " + firstPart + " | Atmosphère " + amsVersion + " | DeepSea-" + secondPart + nandType;
+                    } else {
+                        res = "Asanosphère " + amsVersion + nandType;
+                    }
+                } else {
+                    res = "ASAP 버전을 찾을 수 없습니다";
+                }
+            } else {
+                res = "ASAP 버전을 찾을 수 없습니다";
+            }
+        } else {
+            res = "ASAP 버전을 찾을 수 없습니다";
+        }
+        return res;
+    }
 }  // namespace CurrentCfw

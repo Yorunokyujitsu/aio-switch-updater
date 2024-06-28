@@ -45,24 +45,24 @@ namespace util {
     {
         fs::createTree(DOWNLOAD_PATH);
         switch (type) {
-            case contentType::custom:
-                status_code = download::downloadFile(url, CUSTOM_FILENAME, OFF);
-                break;
-            case contentType::cheats:
-                status_code = download::downloadFile(url, CHEATS_FILENAME, OFF);
-                break;
-            case contentType::fw:
-                status_code = download::downloadFile(url, FIRMWARE_FILENAME, OFF);
-                break;
-            case contentType::app:
-                status_code = download::downloadFile(url, APP_FILENAME, OFF);
-                break;
-            case contentType::bootloaders:
-                status_code = download::downloadFile(url, BOOTLOADER_FILENAME, OFF);
-                break;
             case contentType::ams_cfw:
                 status_code = download::downloadFile(url, AMS_FILENAME, OFF);
                 break;
+            case contentType::HorizonOS:
+                status_code = download::downloadFile(url, FIRMWARE_FILENAME, OFF);
+                break;
+            case contentType::custom:
+                status_code = download::downloadFile(url, CUSTOM_FILENAME, OFF);
+                break;
+            case contentType::extra:
+                status_code = download::downloadFile(url, BOOTLOADER_FILENAME, OFF);
+                break;
+            case contentType::Cheats:
+                status_code = download::downloadFile(url, CHEATS_FILENAME, OFF);
+                break;
+            case contentType::app:
+                status_code = download::downloadFile(url, APP_FILENAME, OFF);
+                break;  
             default:
                 break;
         }
@@ -126,24 +126,24 @@ namespace util {
     {
         std::string filename;
         switch (type) {
-            case contentType::custom:
-                filename = CUSTOM_FILENAME;
-                break;
-            case contentType::cheats:
-                filename = CHEATS_FILENAME;
-                break;
-            case contentType::fw:
-                filename = FIRMWARE_FILENAME;
-                break;
-            case contentType::app:
-                filename = APP_FILENAME;
-                break;
-            case contentType::bootloaders:
-                filename = BOOTLOADER_FILENAME;
-                break;
             case contentType::ams_cfw:
                 filename = AMS_FILENAME;
                 break;
+            case contentType::HorizonOS:
+                filename = FIRMWARE_FILENAME;
+                break;
+            case contentType::custom:
+                filename = CUSTOM_FILENAME;
+                break;
+            case contentType::extra:
+                filename = BOOTLOADER_FILENAME;
+                break;
+            case contentType::Cheats:
+                filename = CHEATS_FILENAME;
+                break;
+            case contentType::app:
+                filename = APP_FILENAME;
+                break; 
             default:
                 return;
         }
@@ -158,43 +158,45 @@ namespace util {
         chdir(ROOT_PATH);
         crashIfNotArchive(type);
         switch (type) {
-            case contentType::cheats: {
+            case contentType::ams_cfw: {
+                // int preserveInis = showDialogBoxBlocking("menus/utils/overwrite_inis"_i18n, "menus/common/yes"_i18n, "menus/common/no"_i18n);
+                // int deleteContents = showDialogBoxBlocking("menus/ams_update/delete_sysmodules_flags"_i18n, "menus/common/no"_i18n, "menus/common/yes"_i18n);
+                // if (deleteContents == 1)
+                    // removeSysmodulesFlags(AMS_CONTENTS);
+                extract::extract(AMS_FILENAME, ROOT_PATH);
+                break;
+            }
+            case contentType::HorizonOS: {
+                fs::removeDir(FIRMWARE_PATH);
+                fs::createTree(FIRMWARE_PATH);
+                extract::extract(FIRMWARE_FILENAME, FIRMWARE_PATH);
+                break;
+            }
+            case contentType::custom: {
+                // int preserveInis = showDialogBoxBlocking("menus/utils/overwrite_inis"_i18n, "menus/common/yes"_i18n, "menus/common/no"_i18n);
+                extract::extract(CUSTOM_FILENAME, ROOT_PATH);
+                break;
+            }    
+            case contentType::extra: {
+                // int preserveInis = showDialogBoxBlocking("menus/utils/overwrite_inis"_i18n, "menus/common/yes"_i18n, "menus/common/no"_i18n);
+                extract::extract(BOOTLOADER_FILENAME, ROOT_PATH);
+                break;
+            }
+            case contentType::Cheats: {
                 std::vector<std::string> titles = extract::getInstalledTitlesNs();
                 titles = extract::excludeTitles(CHEATS_EXCLUDE, titles);
                 extract::extractCheats(CHEATS_FILENAME, titles, CurrentCfw::running_cfw, version);
                 break;
             }
-            case contentType::fw:
-                fs::removeDir(FIRMWARE_PATH);
-                fs::createTree(FIRMWARE_PATH);
-                extract::extract(FIRMWARE_FILENAME, FIRMWARE_PATH);
-                break;
-            case contentType::app:
+            case contentType::app: {
                 extract::extract(APP_FILENAME, CONFIG_PATH);
                 fs::copyFile(ROMFS_FORWARDER, FORWARDER_PATH);
                 break;
-            case contentType::custom: {
-                int preserveInis = showDialogBoxBlocking("menus/utils/overwrite_inis"_i18n, "menus/common/yes"_i18n, "menus/common/no"_i18n);
-                extract::extract(CUSTOM_FILENAME, ROOT_PATH, preserveInis);
-                break;
-            }
-            case contentType::bootloaders: {
-                int preserveInis = showDialogBoxBlocking("menus/utils/overwrite_inis"_i18n, "menus/common/yes"_i18n, "menus/common/no"_i18n);
-                extract::extract(BOOTLOADER_FILENAME, ROOT_PATH, preserveInis);
-                break;
-            }
-            case contentType::ams_cfw: {
-                int preserveInis = showDialogBoxBlocking("menus/utils/overwrite_inis"_i18n, "menus/common/yes"_i18n, "menus/common/no"_i18n);
-                int deleteContents = showDialogBoxBlocking("menus/ams_update/delete_sysmodules_flags"_i18n, "menus/common/no"_i18n, "menus/common/yes"_i18n);
-                if (deleteContents == 1)
-                    removeSysmodulesFlags(AMS_CONTENTS);
-                extract::extract(AMS_FILENAME, ROOT_PATH, preserveInis);
-                break;
-            }
+            }    
             default:
                 break;
         }
-        if (type == contentType::ams_cfw || type == contentType::bootloaders || type == contentType::custom)
+        if (type == contentType::ams_cfw || type == contentType::custom || type == contentType::extra)
             fs::copyFiles(COPY_FILES_TXT);
     }
 
@@ -412,7 +414,7 @@ namespace util {
         return (jsonFile.find(key) != jsonFile.end()) ? jsonFile.at(key) : nlohmann::ordered_json::object();
     }
 
-    int openWebBrowser(const std::string url)
+     int openWebBrowser(const std::string url)
     {
         Result rc = 0;
         int at = appletGetAppletType();
@@ -435,5 +437,5 @@ namespace util {
         }
         return rc;
     }
-
+    
 }  // namespace util

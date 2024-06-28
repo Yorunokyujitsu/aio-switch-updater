@@ -32,7 +32,7 @@ NetPage::NetPage() : AppletFrame(true, true)
     std::string labelText;
 
     if (!uuid || !profile.ip_setting_data.mtu) {
-        labelText = "Please connect to internet to use this feature.";
+        labelText = "이 기능을 이용하려면 인터넷에 연결하세요.";
         label = new brls::Label(brls::LabelStyle::DESCRIPTION, labelText, true);
         list->addView(label);
         cancel = new brls::ListItem("menus/common/go_back"_i18n);
@@ -41,23 +41,23 @@ NetPage::NetPage() : AppletFrame(true, true)
     }
     else {
         if (profile.ip_setting_data.ip_address_setting.is_automatic) {
-            labelText = "IP Adress: Automatic";
+            labelText = "IP 주소: 자동";
         }
         else {
             labelText = fmt::format(
-                "IP Adress: {}\nSubnet Mask: {}\nGateway: {}",
+                "IP 주소: {}\n서브넷 마스크: {}\n게이트웨이: {}",
                 ipToString(profile.ip_setting_data.ip_address_setting.current_addr.addr),
                 ipToString(profile.ip_setting_data.ip_address_setting.subnet_mask.addr),
                 ipToString(profile.ip_setting_data.ip_address_setting.gateway.addr));
         }
-        labelText = fmt::format("{}\nLocal IP addr: {}\nMTU: {}", labelText, std::string(inet_ntoa({(in_addr_t)gethostid()})), std::to_string(unsigned(profile.ip_setting_data.mtu)));
+        labelText = fmt::format("{}\n로컬 IP 주소: {}\nMTU: {}", labelText, std::string(inet_ntoa({(in_addr_t)gethostid()})), std::to_string(unsigned(profile.ip_setting_data.mtu)));
 
         if (profile.ip_setting_data.dns_setting.is_automatic) {
-            labelText = fmt::format("{}\nDNS: Automatic", labelText);
+            labelText = fmt::format("{}\nDNS: 자동", labelText);
         }
         else {
             labelText = fmt::format(
-                "{}\nPrimary DNS: {}\nSecondary DNS: {}",
+                "{}\n기본 DNS: {}\n보조 DNS: {}",
                 labelText,
                 ipToString(profile.ip_setting_data.dns_setting.primary_dns_server.addr),
                 ipToString(profile.ip_setting_data.dns_setting.secondary_dns_server.addr));
@@ -81,26 +81,26 @@ NetPage::NetPage() : AppletFrame(true, true)
         }
 
         profiles.push_back(
-            json::object({{"name", "lan-play"},
+            json::object({{"name", "LAN 플레이"},
                           {"ip_addr", fmt::format("10.13.{}.{}", std::rand() % 256, std::rand() % 253 + 2)},
                           {"subnet_mask", "255.255.0.0"},
                           {"gateway", "10.13.37.1"}}));
 
         profiles.push_back(
-            json::object({{"name", "Automatic IP Address"},
+            json::object({{"name", "자동 IP 주소"},
                           {"ip_auto", true}}));
 
         profiles.push_back(
-            json::object({{"name", "Automatic DNS"},
+            json::object({{"name", "자동 DNS"},
                           {"dns_auto", true}}));
 
         profiles.push_back(
-            json::object({{"name", "90DNS (Europe)"},
+            json::object({{"name", "90DNS (유럽)"},
                           {"dns1", "163.172.141.219"},
                           {"dns2", "207.246.121.77"}}));
 
         profiles.push_back(
-            json::object({{"name", "90DNS (USA)"},
+            json::object({{"name", "90DNS (미국)"},
                           {"dns1", "207.246.121.77"},
                           {"dns2", "163.172.141.219"}}));
 
@@ -110,7 +110,7 @@ NetPage::NetPage() : AppletFrame(true, true)
                           {"dns2", "8.8.4.4"}}));
 
         profiles.push_back(
-            json::object({{"name", "ACNH mtu"},
+            json::object({{"name", "ACNH MTU"},
                           {"mtu", 1500}}));
 
         for (const auto& p : profiles.items()) {
