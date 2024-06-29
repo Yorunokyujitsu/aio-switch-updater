@@ -18,6 +18,7 @@
 #include <string.h>
 #include "../fs/fscopy.h"
 #include "../utils/utils.h"
+#include <display/di.h>
 
 extern sdmmc_storage_t sd_storage;
 extern bool is_sd_inited;
@@ -158,9 +159,7 @@ void TakeScreenshot(){
     free(fb);
 	free(path);
 
-	void display_backlight_brightness(int level, int duration);
-    
-	display_backlight_brightness(255, 1000);
+    display_backlight_brightness(255, 1000);
 	msleep(100);
 	display_backlight_brightness(100, 1000);
 }

@@ -1,6 +1,7 @@
 #include "scriptError.h"
 #include "compat.h"
 #include <stdarg.h>
+#include "../hid/hid.h"
 
 s64 scriptCurrentLine;
 u8 scriptLastError = 0;
@@ -15,6 +16,6 @@ void printScriptError(u8 errLevel, char* message, ...) {
 		gfx_printf("\nError occured on or near line %d\n", (u32)scriptCurrentLine);
 	va_end(args);
 	#ifndef WIN32
-		void hidWait(void);
+		hidWait();
 	#endif
 }
