@@ -49,7 +49,7 @@ ToolsTab::ToolsTab(const std::string& tag, const nlohmann::ordered_json& payload
     brls::ListItem* browser = new brls::ListItem("menus/tools/browser"_i18n);
     browser->getClickEvent()->subscribe([](brls::View* view) {
         std::string url;
-        if (brls::Swkbd::openForText([&url](std::string text) { url = text; }, "cheatslips.com e-mail", "", 256, "https://asadayo.tistory.com/notice/421", 0, "Submit", "https://website.tld")) {
+        if (brls::Swkbd::openForText([&url](std::string text) { url = text; }, "cheatslips.com e-mail", "", 256, "https://asadayo.tistory.com/notice/454", 0, "Submit", "https://website.tld")) {
             util::openWebBrowser(url);
         }
     });
