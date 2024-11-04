@@ -13,7 +13,7 @@ constexpr const char RCM_PAYLOAD_PATH[] = "romfs:/aio_rcm.bin";
 constexpr const char MARIKO_PAYLOAD_PATH[] = "/payload.bin";
 constexpr const char MARIKO_PAYLOAD_PATH_TEMP[] = "/payload.bin.aio";
 
-constexpr const char CHANGELOG_URL[] = "https://asadayo.tistory.com/notice/467";
+constexpr const char CHANGELOG_URL[] = "https://asadayo.tistory.com/notice/472";
 
 constexpr const char APP_URL[] = "https://github.com/Yorunokyujitsu/archive_aio/releases/download/Extra+/APP+.zip";
 constexpr const char TAGS_INFO[] = "https://api.github.com/repos/Yorunokyujitsu/archive_aio/releases/latest";
