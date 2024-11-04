@@ -3,7 +3,7 @@
     "notice_title": "공지사항",
     "notice": "\u25c6 ASAP-Updater는 HamletDuFromage의 Aio-Switch-Updater를 기반으로 제작되었습니다.\n\n\u25c6 ASAP은 모드칩 전용 올인원 패키지이며, 구형 [ Erista ] 기기에서 오류가 발생할 수 있습니다.\n\u25c6 '설정' → 'ASAP 변경내역' 을 통해 최신 릴리즈 노트를 확인하실 수 있습니다.",																																																																					 
     "step_title": "업데이트 및 추가 설치 관련 안내",
-    "step": "\u25c6 업데이트 대상: [Hekate], [Atmosphère], [Basic Homebrews, Sysmodules·Overlays]\n\u25c6 업데이트 순서: 'CFW(ASAP)' → 'eMMC(Horizon OS)' → 'emuMMC(Horizon OS)'\n\n\u25c6 설치 이후: Ultrahand(\uE0E4+\uE0EC+\uE0C5) → 'Extra Setting+'를 이용하여 설정을 완료하세요.\n\n\u25c6 대상에 포함되지 않는 홈브류/시스모듈·오버레이는 개별 설치/업데이트가 필요합니다.\n\u25c6 [ASAP] ↔ [Kefir], [HATS], [DeepSea]간 올인원을 손쉽게 교체할 수 있습니다.\n\u25c6 [Android], [Linux]를 설치하려는 경우, 반드시 해당 파티션을 먼저 분할 하세요.",
+    "step": "\u25c6 업데이트 대상: [Hekate], [Atmosphère], [Basic Homebrews, Sysmodules·Overlays]\n\u25c6 업데이트 순서: 'CFW(ASAP)' → 'eMMC(Horizon OS)' → 'emuMMC(Horizon OS)'\n\n\u25c6 설치 이후: Ultrahand(\uE0E4+\uE0EC+\uE0C5) → 'Extra Setting+'를 이용하여 설정을 완료하세요.\n\n\u25c6 대상에 포함되지 않는 홈브류/시스모듈·오버레이는 개별 설치/업데이트가 필요합니다.\n\u25c6 [ASAP] ↔ [NX-Venom], [Kefir], [HATS], [DeepSea]간 올인원을 손쉽게 교체할 수 있습니다.\n\u25c6 [Android], [Linux]를 설치하려는 경우, 반드시 해당 파티션을 먼저 분할 하세요.",
     "asap_title": "ASAP - Asa's Switch Aio Package",			
     "aio_title": "기타 올인원"
   },
@@ -142,7 +142,7 @@
     "custom_aio_title": "ASAP-Lite: 패키지 구성 요소를 직접 커스텀 해보세요",
     "package_title": "Ultrahand Package",
     "modchip_title": "Modchip Firmware",
-    "tesla_title": "Ultrahand Packages | Sys-Clk | EOS | Toolkit",
+    "tesla_title": "Ultrahand | EOS Packages",
     "sysclk_title": "Sys-Clk | EOS | Toolkit: Ultrahand Only",
     "sys_title": "System Modules | Overlays",
     "home_title": "Homebrews",

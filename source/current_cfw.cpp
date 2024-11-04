@@ -95,9 +95,11 @@ namespace CurrentCfw {
                     thirdPart.erase(remove_if(thirdPart.begin(), thirdPart.end(), isspace), thirdPart.end());
 
                     if (thirdPart == "UPDATE") {
-                        res = "Hekate " + firstPart + " | Asanosphère " + amsVersion + " | ASAP-" + secondPart + nandType;
+                        res = "Hekate " + firstPart + " | Atmosphère " + amsVersion + " | ASAP-" + secondPart + nandType;
                     } else if (thirdPart == "APP") {
                         res = "Atmosphère " + amsVersion + nandType;
+                    } else if (thirdPart == "VENOM") {
+                        res = "Hekate " + firstPart + " | Atmosphère " + amsVersion + " | NX Venom-" + secondPart + nandType;
                     } else if (thirdPart == "HATS") {
                         res = "Hekate " + firstPart + " | Atmosphère " + amsVersion + " | HATS-" + secondPart + nandType;
                     } else if (thirdPart == "KEFIR") {
@@ -105,7 +107,7 @@ namespace CurrentCfw {
                     } else if (thirdPart == "DEEPSEA") {
                         res = "Hekate " + firstPart + " | Atmosphère " + amsVersion + " | DeepSea-" + secondPart + nandType;
                     } else {
-                        res = "Asanosphère " + amsVersion + nandType;
+                        res = "Atmosphère " + amsVersion + nandType;
                     }
                 } else {
                     res = "ASAP 버전을 찾을 수 없습니다";
